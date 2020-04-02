@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-#hash bang = shebang
 # docstring = dokumentační řetězec; uloží do do proměnné _doc_
+# proměnné __doc__
 """Usage: grep.py PATTERN FILE
 
 Print lines form FILE matching regular expression PATTERN
@@ -8,6 +8,7 @@ Print lines form FILE matching regular expression PATTERN
 """
 
 import sys
+import argparse
 import regex as re
 
 def grep(pattern, lines, line_numbers):
@@ -20,34 +21,20 @@ def grep(pattern, lines, line_numbers):
             print(line)
             
 def parse_argv(argv):
-    args = {
-        "line_numbers": False,
-        "begin_context": False,
-    }
-    if "-L" in argv:
-        args["line_numbers"] = True
-        index = argv.index("-L")
-        del argv[index]
-    if "-B" in argv:
-        args["begin_context"] = True
-        index = argv.index("-B")
-        del argv[index]
-    args["pattern"] = argv[1]
-    args["path"] = argv[2]
-    return args
+    parser = argparse.ArgumentParser(description=__doc__.strip())
+    parser.add_argument("pattern", help="Pattern to match")
+    parser.add_argument("path", help="File to search")
+    parser.add_argument("-L", "--line-numbers", help="Print line numbers", action="store_true")
+    return parser.parse_args(argv[1:])
 
 def main():
-    try:
-        args = parse_argv(sys.argv)
-    except ValueError:
-        print(_doc_.strip(), file=sys.stderr)
-        sys.exit(1)
+    args = parse_argv(sys.argv)
 
     try:
-        with open(args["path"]) as file:
-            grep(args["pattern"], file, args["line_numbers"])
+        with open(args.path) as file:
+            grep(args.pattern, file, args.line_numbers)
     except FileNotFoundError as err:
-        print(_doc_.strip(), file=sys.stderr)
+        print(__doc__.strip(), file=sys.stderr)
         print(err, file=sys.stderr)
         sys.exit(1)
         
